@@ -14,20 +14,20 @@ int execute_command_chain(command_chain_t *chain, shell_context_t *ctx) {
     while (current) {
         cmd_node_t *next = current->next;
         
-        /* Handle piped commands */
+        // Handle piped commands
         if (current->type == CMD_PIPE && next) {
             last_status = execute_piped_commands(current, next, ctx);
-            current = next->next; /* Skip the second command in pipe */
+            current = next->next; // Skip the second command in pipe
         } else {
             last_status = execute_single_command(current, ctx);
             
-            /* Handle conditional execution */
+            // Handle conditional execution
             if (next) {
                 if (current->type == CMD_AND && last_status != 0) {
-                    break; /* Stop on failure with && */
+                    break; // Stop on failure with &&
                 }
                 if (current->type == CMD_OR && last_status == 0) {
-                    break; /* Stop on success with || */
+                    break; // Stop on success with ||
                 }
             }
             
@@ -48,7 +48,7 @@ int execute_single_command(cmd_node_t *cmd, shell_context_t *ctx) {
         return 1;
     }
     
-    /* Check if it's a built-in command */
+    // Check if it's a built-in command
     if (is_builtin_command(cmd->command)) {
         return execute_builtin_command(cmd, ctx);
     } else {
@@ -72,7 +72,7 @@ int execute_builtin_command(cmd_node_t *cmd, shell_context_t *ctx) {
         return builtin_exit(cmd->args, ctx);
     }
     
-    return 1; /* Unknown built-in */
+    return 1; // Unknown built-in
 }
 
 /**
@@ -82,9 +82,9 @@ int execute_external_command(cmd_node_t *cmd, shell_context_t *ctx) {
     pid_t pid = fork();
     
     if (pid == 0) {
-        /* Child process */
+        // Child process
         
-        /* Handle input redirection */
+        // Handle input redirection
         if (cmd->input_file) {
             FILE *input = fopen(cmd->input_file, "r");
             if (!input) {
@@ -95,7 +95,7 @@ int execute_external_command(cmd_node_t *cmd, shell_context_t *ctx) {
             fclose(input);
         }
         
-        /* Handle output redirection */
+        // Handle output redirection
         if (cmd->output_file) {
             FILE *output = fopen(cmd->output_file, 
                                cmd->append_output ? "a" : "w");
@@ -107,29 +107,24 @@ int execute_external_command(cmd_node_t *cmd, shell_context_t *ctx) {
             fclose(output);
         }
         
-        /* Prepare arguments for execvp */
+        // Prepare arguments for execvp
         char **exec_args = malloc((cmd->argc + 2) * sizeof(char*));
-        if (!exec_args) {
-            perror("malloc");
-            exit(1);
-        }
-        
         exec_args[0] = cmd->command;
         for (int i = 0; i < cmd->argc; i++) {
             exec_args[i + 1] = cmd->args[i];
         }
         exec_args[cmd->argc + 1] = NULL;
         
-        /* Execute the command */
+        // Execute the command
         execvp(cmd->command, exec_args);
         
-        /* If execvp returns, there was an error */
+        // If execvp returns, there was an error
         fprintf(stderr, "%s: command not found\n", cmd->command);
         free(exec_args);
         exit(127);
         
     } else if (pid > 0) {
-        /* Parent process */
+        // Parent process
         if (!cmd->background) {
             int status;
             waitpid(pid, &status, 0);
@@ -152,27 +147,20 @@ int execute_piped_commands(cmd_node_t *cmd1, cmd_node_t *cmd2, shell_context_t *
     pid_t pid1, pid2;
     int status1, status2;
     
-    (void)ctx; /* Suppress unused parameter warning */
-    
     if (pipe(pipe_fd) == -1) {
         perror("pipe");
         return 1;
     }
     
-    /* First command (left side of pipe) */
+    // First command (left side of pipe)
     pid1 = fork();
     if (pid1 == 0) {
-        close(pipe_fd[0]); /* Close read end */
-        dup2(pipe_fd[1], STDOUT_FILENO); /* Redirect stdout to pipe */
+        close(pipe_fd[0]); // Close read end
+        dup2(pipe_fd[1], STDOUT_FILENO); // Redirect stdout to pipe
         close(pipe_fd[1]);
         
-        /* Prepare and execute first command */
+        // Prepare and execute first command
         char **exec_args = malloc((cmd1->argc + 2) * sizeof(char*));
-        if (!exec_args) {
-            perror("malloc");
-            exit(1);
-        }
-        
         exec_args[0] = cmd1->command;
         for (int i = 0; i < cmd1->argc; i++) {
             exec_args[i + 1] = cmd1->args[i];
@@ -185,20 +173,15 @@ int execute_piped_commands(cmd_node_t *cmd1, cmd_node_t *cmd2, shell_context_t *
         exit(127);
     }
     
-    /* Second command (right side of pipe) */
+    // Second command (right side of pipe)
     pid2 = fork();
     if (pid2 == 0) {
-        close(pipe_fd[1]); /* Close write end */
-        dup2(pipe_fd[0], STDIN_FILENO); /* Redirect stdin from pipe */
+        close(pipe_fd[1]); // Close write end
+        dup2(pipe_fd[0], STDIN_FILENO); // Redirect stdin from pipe
         close(pipe_fd[0]);
         
-        /* Prepare and execute second command */
+        // Prepare and execute second command
         char **exec_args = malloc((cmd2->argc + 2) * sizeof(char*));
-        if (!exec_args) {
-            perror("malloc");
-            exit(1);
-        }
-        
         exec_args[0] = cmd2->command;
         for (int i = 0; i < cmd2->argc; i++) {
             exec_args[i + 1] = cmd2->args[i];
@@ -211,14 +194,14 @@ int execute_piped_commands(cmd_node_t *cmd1, cmd_node_t *cmd2, shell_context_t *
         exit(127);
     }
     
-    /* Parent process - close both ends of pipe and wait */
+    // Parent process - close both ends of pipe and wait
     close(pipe_fd[0]);
     close(pipe_fd[1]);
     
     waitpid(pid1, &status1, 0);
     waitpid(pid2, &status2, 0);
     
-    /* Return exit status of the last command in the pipe */
+    // Return exit status of the last command in the pipe
     return WEXITSTATUS(status2);
 }
 

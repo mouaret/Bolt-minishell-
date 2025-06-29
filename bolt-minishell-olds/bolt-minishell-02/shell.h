@@ -1,9 +1,6 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-#define _GNU_SOURCE
-#define _POSIX_C_SOURCE 200809L
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +23,7 @@ typedef enum {
     CMD_AND,        /* Command with && */
     CMD_OR,         /* Command with || */
     CMD_PIPE,       /* Command with | */
-    // CMD_SEMICOLON   /* Command with ; */
+    CMD_SEMICOLON   /* Command with ; */
 } cmd_type_t;
 
 /* Command node structure for chained list */
@@ -93,8 +90,5 @@ void cleanup_shell_context(shell_context_t *ctx);
 
 /* Command parsing (placeholder for your partner's parser) */
 command_chain_t* parse_command_line(const char *line);
-
-/* Utility function for string duplication (POSIX compatibility) */
-char* shell_strdup(const char *s);
 
 #endif /* SHELL_H */

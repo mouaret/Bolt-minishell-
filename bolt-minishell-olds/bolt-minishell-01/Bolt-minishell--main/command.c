@@ -1,23 +1,6 @@
 #include "shell.h"
 
 /**
- * Portable string duplication function
- */
-char* shell_strdup(const char *s) {
-    if (!s) return NULL;
-    
-    size_t len = strlen(s) + 1;
-    char *dup = malloc(len);
-    if (!dup) {
-        perror("malloc");
-        return NULL;
-    }
-    
-    memcpy(dup, s, len);
-    return dup;
-}
-
-/**
  * Create a new command chain
  */
 command_chain_t* create_command_chain(void) {
@@ -123,10 +106,10 @@ char** copy_args(char **args, int argc) {
     }
     
     for (int i = 0; i < argc; i++) {
-        new_args[i] = shell_strdup(args[i]);
+        new_args[i] = strdup(args[i]);
         if (!new_args[i]) {
-            perror("shell_strdup");
-            /* Clean up already allocated strings */
+            perror("strdup");
+            // Clean up already allocated strings
             for (int j = 0; j < i; j++) {
                 free(new_args[j]);
             }

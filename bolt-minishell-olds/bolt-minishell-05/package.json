@@ -1,0 +1,12 @@
+{
+  "name": "mini-shell",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/shell.js",
+    "test": "node src/test.js"
+  },
+  "dependencies": {
+    "child_process": "^1.0.2"
+  }
+}

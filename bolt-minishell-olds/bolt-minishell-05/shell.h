@@ -26,7 +26,7 @@ typedef enum {
     CMD_AND,        /* Command with && */
     CMD_OR,         /* Command with || */
     CMD_PIPE,       /* Command with | */
-    // CMD_SEMICOLON   /* Command with ; */
+    CMD_SEMICOLON   /* Command with ; */
 } cmd_type_t;
 
 /* Command node structure for chained list */

@@ -7,7 +7,7 @@ int builtin_cd(char **args, shell_context_t *ctx) {
     char *dir;
     
     if (!args || !args[0]) {
-        /* No argument, go to HOME */
+        // No argument, go to HOME
         dir = getenv("HOME");
         if (!dir) {
             fprintf(stderr, "cd: HOME not set\n");
@@ -22,7 +22,7 @@ int builtin_cd(char **args, shell_context_t *ctx) {
         return 1;
     }
     
-    /* Update current directory in context */
+    // Update current directory in context
     if (getcwd(ctx->current_dir, sizeof(ctx->current_dir)) == NULL) {
         perror("getcwd");
         return 1;
@@ -36,9 +36,6 @@ int builtin_cd(char **args, shell_context_t *ctx) {
  */
 int builtin_pwd(char **args, shell_context_t *ctx) {
     char cwd[MAX_PATH];
-    
-    (void)args; /* Suppress unused parameter warning */
-    (void)ctx;  /* Suppress unused parameter warning */
     
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
         printf("%s\n", cwd);
@@ -56,15 +53,13 @@ int builtin_echo(char **args, shell_context_t *ctx) {
     int newline = 1;
     int start = 0;
     
-    (void)ctx; /* Suppress unused parameter warning */
-    
-    /* Check for -n flag */
+    // Check for -n flag
     if (args && args[0] && strcmp(args[0], "-n") == 0) {
         newline = 0;
         start = 1;
     }
     
-    /* Print arguments */
+    // Print arguments
     if (args) {
         for (int i = start; args[i]; i++) {
             if (i > start) {
@@ -85,8 +80,7 @@ int builtin_echo(char **args, shell_context_t *ctx) {
  * Built-in env command
  */
 int builtin_env(char **args, shell_context_t *ctx) {
-    (void)args; /* Suppress unused parameter warning */
-    (void)ctx;  /* Suppress unused parameter warning */
+    extern char **environ;
     
     if (!environ) {
         return 1;
